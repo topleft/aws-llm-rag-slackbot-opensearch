@@ -1,0 +1,8 @@
+### Terraform ###
+**/.terraform/*
+.terraform.*
+*.tfstate
+*.tfstate.*
+
+### Misc ###
+tmp/

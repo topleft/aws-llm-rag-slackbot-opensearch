@@ -22,7 +22,7 @@ resource "aws_api_gateway_integration" "slackbot_integration" {
   http_method             = aws_api_gateway_method.slackbot_method.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.llm_handler.invoke_arn
+  uri                     = module.lambda_function_llm_handler.lambda_function_invoke_arn
 }
 
 resource "aws_api_gateway_deployment" "api_deployment" {

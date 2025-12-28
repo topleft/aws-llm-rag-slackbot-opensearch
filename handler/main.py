@@ -26,7 +26,7 @@ def log_request(logger, body, next):
     return next()
 
 
-command = "/hello-bolt-python-lambda"
+command = "/ask-llm"
 
 
 def respond_to_slack_within_3_seconds(body, ack):

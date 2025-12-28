@@ -7,6 +7,7 @@ module "lambda_function_llm_handler" {
   source_path   = "../handler"
   publish       = true
   create_role   = true
+  timeout       = 15
   environment_variables = merge(
     {
       ENV                            = var.env
@@ -51,6 +52,28 @@ resource "aws_iam_role_policy_attachment" "lambda_ssm_access" {
   policy_arn = aws_iam_policy.lambda_ssm_access.arn
 }
 
+resource "aws_iam_policy" "lambda_invoke_self" {
+  name        = "topleft_llm_slackbot_lambda_invoke_self_${var.env}"
+  description = "Allow Lambda to invoke itself for LLM Slackbot"
 
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:InvokeFunction"
+        ]
+        Resource = module.lambda_function_llm_handler.lambda_function_arn
+      }
+    ]
+  })
+}
+
+# Attach invoke self policy to Lambda role
+resource "aws_iam_role_policy_attachment" "lambda_invoke_self" {
+  role       = module.lambda_function_llm_handler.lambda_role_name
+  policy_arn = aws_iam_policy.lambda_invoke_self.arn
+}
 
 

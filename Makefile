@@ -65,3 +65,20 @@ apply_dev: init_dev apply_terraform
 .PHONY: destroy_dev
 destroy_dev: env:=dev
 destroy_dev: init_dev destroy_terraform
+
+### Package targets
+.PHONY: clean_zip
+clean_zip:
+	@echo "Cleaning up previous zip files..."
+	@rm -f *.zip
+
+.PHONY: zip_handler
+zip_handler: clean_zip
+	@echo "Creating zip package for handler..."
+	@zip -r handler.zip handler/
+	@echo "Package created: handler.zip"
+
+.PHONY: deploy_dev
+deploy_dev: zip_handler apply_dev
+	@echo "Zip and Apply complete for dev environment."
+	

@@ -1,3 +1,8 @@
+locals {
+  rag_model_id         = "amazon.nova-2-lite-v1:0"
+  inference_profile_id = "global.amazon.nova-2-lite-v1:0"
+}
+
 module "lambda_function_llm_handler" {
   source        = "terraform-aws-modules/lambda/aws"
   version       = "8.1.2"
@@ -13,6 +18,9 @@ module "lambda_function_llm_handler" {
       ENV                            = var.env
       SLACK_BOT_TOKEN_PARAMETER      = "/topleft/llm_slackbot/${var.env}/SLACK_BOT_TOKEN"
       SLACK_SIGNING_SECRET_PARAMETER = "/topleft/llm_slackbot/${var.env}/SLACK_SIGNING_SECRET"
+      SLACK_SLASH_COMMAND            = "/ask-llm"
+      KNOWLEDGEBASE_ID               = aws_bedrockagent_knowledge_base.resource_kb.id
+      INFERENCE_PROFILE_ID           = local.inference_profile_id
     },
 
   )
@@ -24,10 +32,10 @@ module "lambda_function_llm_handler" {
   }
 }
 
-# IAM policy for SSM parameter access
-resource "aws_iam_policy" "lambda_ssm_access" {
-  name        = "topleft_llm_slackbot_lambda_ssm_access_${var.env}"
-  description = "Allow Lambda to access SSM parameters for LLM Slackbot"
+# IAM role policy for SSM parameter access
+resource "aws_iam_role_policy" "lambda_ssm_access" {
+  name = "ssm_access"
+  role = module.lambda_function_llm_handler.lambda_role_name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -46,15 +54,10 @@ resource "aws_iam_policy" "lambda_ssm_access" {
   })
 }
 
-# Attach SSM policy to Lambda role
-resource "aws_iam_role_policy_attachment" "lambda_ssm_access" {
-  role       = module.lambda_function_llm_handler.lambda_role_name
-  policy_arn = aws_iam_policy.lambda_ssm_access.arn
-}
-
-resource "aws_iam_policy" "lambda_invoke_self" {
-  name        = "topleft_llm_slackbot_lambda_invoke_self_${var.env}"
-  description = "Allow Lambda to invoke itself for LLM Slackbot"
+# IAM role policy for Lambda self-invocation
+resource "aws_iam_role_policy" "lambda_invoke_self" {
+  name = "invoke_self"
+  role = module.lambda_function_llm_handler.lambda_role_name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -70,10 +73,33 @@ resource "aws_iam_policy" "lambda_invoke_self" {
   })
 }
 
-# Attach invoke self policy to Lambda role
-resource "aws_iam_role_policy_attachment" "lambda_invoke_self" {
-  role       = module.lambda_function_llm_handler.lambda_role_name
-  policy_arn = aws_iam_policy.lambda_invoke_self.arn
+# IAM role policy for Bedrock Knowledge Base access
+resource "aws_iam_role_policy" "bedrock_kb_invoke" {
+  name = "bedrock_kb_invoke"
+  role = module.lambda_function_llm_handler.lambda_role_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "bedrock:RetrieveAndGenerate",
+          "bedrock:Retrieve",
+          "bedrock:GetInferenceProfile",
+          "bedrock:ListInferenceProfiles",
+          "bedrock:InvokeModel"
+        ]
+        Effect = "Allow"
+        Resource = [
+          aws_bedrockagent_knowledge_base.resource_kb.arn,
+          "arn:aws:bedrock:*:*:foundation-model/${local.rag_model_id}",
+          "arn:aws:bedrock:*:*:inference-profile/${local.inference_profile_id}",
+        ]
+      }
+    ]
+  })
 }
+
+
 
 

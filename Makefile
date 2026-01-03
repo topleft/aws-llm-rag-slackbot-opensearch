@@ -31,15 +31,15 @@ init_terraform: fmt_terraform
 
 .PHONY: plan_terraform
 plan_terraform: fmt_terraform lint_terraform init_terraform
-	@terraform -chdir=$(TF_DIR) plan
+	@terraform -chdir=$(TF_DIR) plan -var-file=$(VAR_FILE)
 
 .PHONY: apply_terraform
 apply_terraform: fmt_terraform lint_terraform init_terraform
-	@terraform -chdir=$(TF_DIR) apply -auto-approve
+	@terraform -chdir=$(TF_DIR) apply -auto-approve -var-file=$(VAR_FILE)
 
 .PHONY: destroy_terraform
 destroy_terraform: fmt_terraform
-	@terraform -chdir=$(TF_DIR) destroy -auto-approve
+	@terraform -chdir=$(TF_DIR) destroy -auto-approve -var-file=$(VAR_FILE)
 
 .PHONY: fmt_terraform
 fmt_terraform:
@@ -72,13 +72,4 @@ clean_zip:
 	@echo "Cleaning up previous zip files..."
 	@rm -f *.zip
 
-.PHONY: zip_handler
-zip_handler: clean_zip
-	@echo "Creating zip package for handler..."
-	@zip -r handler.zip handler/
-	@echo "Package created: handler.zip"
-
-.PHONY: deploy_dev
-deploy_dev: zip_handler apply_dev
-	@echo "Zip and Apply complete for dev environment."
 	

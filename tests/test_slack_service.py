@@ -9,8 +9,8 @@ import pytest
 # Add handler directory to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent / "handler"))
 
-# Mock Slack AsyncApp before importing slack_service
-with patch("slack_bolt.async_app.AsyncApp") as mock_slack_app:
+# Mock Slack App before importing slack_service
+with patch("slack_bolt.App") as mock_slack_app:
     mock_app_instance = Mock()
     mock_slack_app.return_value = mock_app_instance
     # Now safe to import slack_service
@@ -81,8 +81,8 @@ class TestSlackService:
 
         mock_ack.assert_called_once_with(":x: Usage: /test-llm <your question here>")
 
-    @patch("slack_service.AsyncApp")  # Patch where it's used, not where it's imported
-    async def test_app_initialization(self, mock_slack_app, mock_env_vars):
+    @patch("slack_service.App")  # Patch where it's used, not where it's imported
+    def test_app_initialization(self, mock_slack_app, mock_env_vars):
         """Test that the Slack app is initialized correctly"""
         mock_app_instance = Mock()
         mock_slack_app.return_value = mock_app_instance
@@ -91,9 +91,9 @@ class TestSlackService:
         slack_service.app = None
 
         # Test app creation
-        app = await slack_service.get_slack_app()
+        app = slack_service.get_slack_app()
 
-        # Verify AsyncApp was created with correct parameters from environment variables
+        # Verify App was created with correct parameters from environment variables
         mock_slack_app.assert_called_once_with(
             process_before_response=True,
             token="test-slack-bot-token",  # From env defaults

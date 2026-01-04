@@ -16,7 +16,7 @@ import main  # type: ignore
 class TestMainHandler:
     """Test main Lambda handler function"""
 
-    @patch("slack_service.AsyncApp")
+    @patch("slack_service.App")
     @patch("main.SlackRequestHandler")
     def test_lambda_handler(self, mock_slack_handler, mock_app, mock_env_vars):
         """Test Lambda handler integration"""

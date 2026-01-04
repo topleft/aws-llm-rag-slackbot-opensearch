@@ -4,7 +4,6 @@ from typing import Any, Callable, Dict, Optional
 
 from kb_service import get_bedrock_knowledge_base_response
 from markdown_to_mrkdwn import SlackMarkdownConverter
-from parameter_service import get_parameter
 from slack_bolt import App
 
 # Get environment variables with defaults for testing
@@ -19,11 +18,9 @@ app: Optional[App] = None
 
 
 def get_slack_app() -> App:
-    """Get or create Slack app with lazy parameter loading"""
+    """Get or create Slack app"""
     global app
     if app is None:
-        bot_token = get_parameter(bot_token_parameter)
-        signing_secret = get_parameter(signing_secret_parameter)
         app = App(
             process_before_response=True, token=bot_token, signing_secret=signing_secret
         )
@@ -39,10 +36,12 @@ def log_request(logger: Any, body: Dict[str, Any], next: Callable) -> Any:
 def respond_to_slack_within_3_seconds(body: Dict[str, Any], ack: Callable) -> None:
     """Respond to Slack within 3 seconds to acknowledge command receipt"""
     if body.get("text") is None:
-        ack(f":x: Usage: {slack_slash_command} (description here)")
+        ack(f":x: Usage: {slack_slash_command} <your question here>")
     else:
         title = body["text"]
-        ack(f"Accepted Task. Generating response... :hourglass_flowing_sand:")
+        ack(
+            f'Accepted Task.\n\n"{title}"\n\nGenerating response... :hourglass_flowing_sand:'
+        )
 
 
 def process_command_request(respond: Callable, body: Dict[str, Any]) -> None:

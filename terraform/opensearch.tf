@@ -140,7 +140,3 @@ resource "time_sleep" "aws_iam_role_policy_bedrock_kb_resource_kb_oss" {
   create_duration = "20s"
   depends_on      = [aws_iam_role_policy.bedrock_kb_resource_kb_oss]
 }
-
-output "opensearch_collection_endpoint" {
-  value = aws_opensearchserverless_collection.resource_kb.collection_endpoint
-}

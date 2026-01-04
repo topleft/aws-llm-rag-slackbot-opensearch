@@ -2,29 +2,12 @@
 data "aws_caller_identity" "this" {}
 data "aws_region" "this" {}
 
-output "account_id" {
-  value = data.aws_caller_identity.this.account_id
-}
-
 locals {
   account_id             = data.aws_caller_identity.this.account_id
   region                 = data.aws_region.this.region
   bedrock_model_arn      = "arn:aws:bedrock:${local.region}::foundation-model/${var.kb_model_id}"
   bedrock_kb_name        = "${var.kb_name}-${var.env}"
-  image_tag              = formatdate("YYYYMMDDhhmmss", timestamp())
   kb_oss_collection_name = "${var.kb_oss_collection_name}-${var.env}"
-}
-
-output "image_tag" {
-  value = local.image_tag
-}
-
-output "region" {
-  value = local.region
-}
-
-output "bedrockarn" {
-  value = local.bedrock_model_arn
 }
 
 # Knowledge base resource role
@@ -119,12 +102,7 @@ resource "aws_iam_role_policy" "bedrock_kb_resource_kb_oss" {
 
 # S3 bucket data source
 resource "aws_s3_bucket" "resource_kb" {
-  bucket_prefix = "${var.kb_s3_bucket_name_prefix}-${var.env}"
-}
-
-
-output "s3_bucket_name" {
-  value = aws_s3_bucket.resource_kb.bucket
+  bucket_prefix = "${var.kb_data_source_s3_bucket_name_prefix}-${var.env}"
 }
 
 # Knowledge base resource creation
@@ -168,12 +146,3 @@ resource "aws_bedrockagent_data_source" "resource_kb" {
   }
 }
 
-output "knowledge_base_id" {
-  value       = aws_bedrockagent_knowledge_base.resource_kb.id
-  description = "The ID of the Knowledge Base"
-}
-
-output "knowledge_base_ARN" {
-  value       = aws_bedrockagent_knowledge_base.resource_kb.arn
-  description = "The ARN of the Knowledge Base"
-}

@@ -4,6 +4,7 @@
 *.tfstate
 *.tfstate.*
 terraform/builds/
+terraform/config/env/*.tfvars
 
 ### Misc ###
 tmp/

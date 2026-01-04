@@ -45,7 +45,7 @@ variable "kb_name" {
   default     = "resourceKB"
 }
 
-variable "kb_s3_bucket_name_prefix" {
+variable "kb_data_source_s3_bucket_name_prefix" {
   description = "The name prefix of the S3 bucket for the data source of the knowledge base."
   type        = string
 }

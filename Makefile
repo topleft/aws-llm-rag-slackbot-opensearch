@@ -1,12 +1,9 @@
 TF_AWS_REGION ?= us-east-2
 TF_STATE_BUCKET ?= terraform-state-topleft-llm
 TF_STATE_PREFIX ?= $(env)/default.tfstate
-
-
 TF_DIR ?= terraform
 
 VAR_FILE ?= config/env/$(env).tfvars
-
 
 .PHONY: terraform_installed
 terraform_installed:
@@ -65,11 +62,4 @@ apply_dev: init_dev apply_terraform
 .PHONY: destroy_dev
 destroy_dev: env:=dev
 destroy_dev: init_dev destroy_terraform
-
-### Package targets
-.PHONY: clean_zip
-clean_zip:
-	@echo "Cleaning up previous zip files..."
-	@rm -f *.zip
-
 	

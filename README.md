@@ -2,7 +2,7 @@
 
 A serverless Slack bot powered by AWS Bedrock that provides intelligent responses using large language models and knowledge base retrieval.
 
-## 🚀 Features
+## 🔮 Features
 
 - **Slack Integration**: Responds to slash commands in Slack channels
 - **AWS Bedrock LLMs**: Leverages Amazon's foundation models (Nova, Titan)
@@ -37,7 +37,7 @@ A serverless Slack bot powered by AWS Bedrock that provides intelligent response
 
 ## 🛠️ Setup
 
-> ⚠️ **Cost Warning**: OpenSearch Serverless costs approximately $0.25/hour (~$180/month) when running. Consider using development environments sparingly or exploring alternative vector storage options for cost optimization. (s3 Vector storage exmple comming soon)
+> ⚠️ **Cost Warning**: OpenSearch Serverless costs approximately $0.25/hour (~$180/month) when running. Consider using development environments sparingly or exploring alternative vector storage options for cost optimization. (s3 Vector storage example coming soon)
 
 ### 1. Configure AWS Profile
 
@@ -231,12 +231,6 @@ provider "opensearch" {
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Support
-
-- Create an issue for bug reports
-- Start a discussion for feature requests
-- Check existing issues before posting
 
 ## 🔗 Related Resources
 

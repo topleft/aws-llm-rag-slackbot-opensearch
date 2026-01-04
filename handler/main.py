@@ -1,31 +1,47 @@
 import logging
-import time
 import os
+import time
+from typing import Any, Callable, Dict, Optional
 
-from slack_bolt import App 
-from slack_bolt.adapter.aws_lambda import SlackRequestHandler
+from kb_service import get_bedrock_knowledge_base_response
 from markdown_to_mrkdwn import SlackMarkdownConverter
 from parameter_service import get_parameter
-from kb_service import get_bedrock_knowledgebase_response
+from slack_bolt import App
+from slack_bolt.adapter.aws_lambda import SlackRequestHandler
 
-bot_token_parameter = os.environ["SLACK_BOT_TOKEN_PARAMETER"]
-signing_secret_parameter = os.environ["SLACK_SIGNING_SECRET_PARAMETER"]
-slack_slash_command = os.environ["SLACK_SLASH_COMMAND"]
+# Get environment variables with defaults for testing
+bot_token_parameter: str = os.environ.get(
+    "SLACK_BOT_TOKEN_PARAMETER", "/test/slack/bot-token"
+)
+signing_secret_parameter: str = os.environ.get(
+    "SLACK_SIGNING_SECRET_PARAMETER", "/test/slack/signing-secret"
+)
+slack_slash_command: str = os.environ.get("SLACK_SLASH_COMMAND", "/test-llm")
 
-# Retrieve the parameters
-bot_token = get_parameter(bot_token_parameter)
-signing_secret = get_parameter(signing_secret_parameter)
 
-app = App(process_before_response=True, token=bot_token, signing_secret=signing_secret)
+# Lazy initialization - only retrieve parameters when needed
+def get_slack_app() -> App:
+    """Get or create Slack app with lazy parameter loading"""
+    global app
+    if app is None:
+        bot_token = get_parameter(bot_token_parameter)
+        signing_secret = get_parameter(signing_secret_parameter)
+        app = App(
+            process_before_response=True, token=bot_token, signing_secret=signing_secret
+        )
+    return app
 
 
-@app.middleware  # or app.use(log_request)
-def log_request(logger, body, next):
+# For testing, allow direct app assignment
+app: Optional[App] = None
+
+
+def log_request(logger: Any, body: Dict[str, Any], next: Callable) -> Any:
     logger.debug(body)
     return next()
 
 
-def respond_to_slack_within_3_seconds(body, ack):
+def respond_to_slack_within_3_seconds(body: Dict[str, Any], ack: Callable) -> None:
     if body.get("text") is None:
         ack(f":x: Usage: {slack_slash_command} (description here)")
     else:
@@ -33,21 +49,21 @@ def respond_to_slack_within_3_seconds(body, ack):
         ack(f"Accepted Task. Generating response... :hourglass_flowing_sand:")
 
 
-def process_command_request(respond, body):
+def process_command_request(respond: Callable, body: Dict[str, Any]) -> None:
     """
     Receive the Slack Slash Command user query and proxy the query to Bedrock Knowledge base ReteriveandGenerate API
     and return the response to Slack to be presented in the users chat thread.
     """
     try:
         # Get the user query
-        user_query = body["text"]
+        user_query: str = body["text"]
         logging.info(
             f"{slack_slash_command} - Responding to command: {slack_slash_command} - User Query: {user_query}"
         )
 
-        kb_response = get_bedrock_knowledgebase_response(user_query)
+        kb_response = get_bedrock_knowledge_base_response(user_query)
         converter = SlackMarkdownConverter()
-        response_text = converter.convert(kb_response["output"]["text"])
+        response_text: str = converter.convert(kb_response["output"]["text"])
         respond(
             {
                 "blocks": [
@@ -55,8 +71,8 @@ def process_command_request(respond, body):
                         "type": "section",
                         "text": {
                             "type": "mrkdwn",
-                            "text": f"*{slack_slash_command}* - Response:\n\n{response_text}"
-                        }
+                            "text": f"*{slack_slash_command}* - Response:\n\n{response_text}",
+                        },
                     }
                 ]
             }
@@ -69,14 +85,22 @@ def process_command_request(respond, body):
         )
 
 
-app.command(slack_slash_command)(
-    ack=respond_to_slack_within_3_seconds, lazy=[process_command_request]
-)
+# Register middleware and commands when app is created
+def setup_app_handlers() -> App:
+    """Setup app handlers and middleware"""
+    slack_app = get_slack_app()
+    slack_app.middleware(log_request)
+    slack_app.command(slack_slash_command)(
+        ack=respond_to_slack_within_3_seconds, lazy=[process_command_request]
+    )
+    return slack_app
+
 
 SlackRequestHandler.clear_all_log_handlers()
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.DEBUG)
 
 
-def handler(event, context):
-    slack_handler = SlackRequestHandler(app=app)
+def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    slack_app = setup_app_handlers()
+    slack_handler = SlackRequestHandler(app=slack_app)
     return slack_handler.handle(event, context)

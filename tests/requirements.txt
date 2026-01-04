@@ -1,0 +1,7 @@
+pytest
+pytest-mock
+moto
+boto3
+black
+isort
+mypy

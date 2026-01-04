@@ -63,3 +63,24 @@ apply_dev: init_dev apply_terraform
 destroy_dev: env:=dev
 destroy_dev: init_dev destroy_terraform
 	
+.PHONY: test
+test:
+	@pip install -r tests/requirements.txt && \
+	python -m pytest tests/ -v
+
+.PHONY: fmt
+fmt:
+	@pip install -r tests/requirements.txt && \
+	black handler/ tests/
+	isort handler/ tests/
+
+.PHONY: lint
+lint:
+	@pip install -r tests/requirements.txt && \
+	black --check handler/ tests/
+	isort --check-only handler/ tests/
+
+.PHONY: type-check
+type-check:
+	@pip install -r tests/requirements.txt && \
+	mypy handler/

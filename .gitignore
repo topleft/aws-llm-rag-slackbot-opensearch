@@ -6,7 +6,22 @@
 terraform/builds/
 terraform/config/env/*.tfvars
 
+### Python ###
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.pytest_cache/
+
 ### Misc ###
 tmp/
 
 kb_data/
+
+

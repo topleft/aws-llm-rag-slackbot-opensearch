@@ -184,6 +184,12 @@ This project uses **OpenSearch Serverless** for vector storage and retrieval.
 │   ├── kb_service.py       # Knowledge base integration
 │   ├── parameter_service.py # AWS SSM parameter retrieval
 │   └── requirements.txt    # Python dependencies
+├── tests/                  # Test suite (excluded from Lambda package)
+│   ├── conftest.py         # Test configuration and fixtures
+│   ├── test_main.py        # Lambda handler tests
+│   ├── test_kb_service.py  # Knowledge base service tests
+│   ├── test_parameter_service.py # Parameter service tests
+│   └── test_env.sh         # Test environment configuration
 ├── terraform/              # Infrastructure as Code
 │   ├── modules/            # Reusable Terraform modules
 │   ├── config/             # Environment configurations
@@ -192,7 +198,24 @@ This project uses **OpenSearch Serverless** for vector storage and retrieval.
 └── README.md              # This file
 ```
 
-## 🧪 Available Make Commands
+### Testing
+
+The project includes a comprehensive test suite using pytest with full mocking of AWS services. Tests are located in the `tests/` directory and are automatically excluded from Lambda deployments.
+
+#### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run specific test file
+python -m pytest tests/test_main.py -v
+```
+
+Tests use mocked AWS services via `moto` and don't require real AWS credentials or resources.
+```
+
+## Available Make Commands
 
 ```bash
 make plan_dev      # Plan Terraform changes

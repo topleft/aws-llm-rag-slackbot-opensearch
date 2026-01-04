@@ -21,12 +21,6 @@ variable "slack_slash_command" {
 
 }
 
-variable "kb_model_id" {
-  description = "The ID of the foundational model used by the knowledge base."
-  type        = string
-  default     = "amazon.titan-embed-text-v2:0"
-}
-
 variable "inference_profile_id" {
   description = "The ID of the inference profile used for RAG model invocation."
   type        = string
@@ -39,25 +33,8 @@ variable "rag_model_id" {
   default     = "amazon.nova-2-lite-v1:0"
 }
 
-variable "kb_name" {
-  description = "The knowledge base name."
+variable "kb_embedding_model_id" {
+  description = "The ID of the foundational model used by the knowledge base."
   type        = string
-  default     = "resourceKB"
-}
-
-variable "kb_s3_bucket_name_prefix" {
-  description = "The name prefix of the S3 bucket for the data source of the knowledge base."
-  type        = string
-}
-
-variable "kb_oss_collection_name" {
-  description = "The name of the OSS collection for the knowledge base."
-  type        = string
-  default     = "bedrock-resource-kb"
-}
-
-variable "enable_opensearch_standby_replicas" {
-  description = "Enable standby replicas for OpenSearch Serverless collection."
-  type        = bool
-  default     = false
+  default     = "amazon.titan-embed-text-v2:0"
 }

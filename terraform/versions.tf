@@ -4,10 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 6.0"
     }
-    opensearch = {
-      source  = "opensearch-project/opensearch"
-      version = "= 2.2.0"
-    }
+    # opensearch = {
+    #   source  = "opensearch-project/opensearch"
+    #   version = "= 2.2.0"
+    # }
     time = {
       source  = "hashicorp/time"
       version = ">= 0.7.2"

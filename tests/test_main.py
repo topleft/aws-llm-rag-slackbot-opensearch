@@ -10,21 +10,16 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent / "handler"))
 
 # Now safe to import main
-import main
+import main  # type: ignore
 
 
 class TestMainHandler:
     """Test main Lambda handler function"""
 
-    @patch("slack_service.get_parameter")
-    @patch("slack_service.App")
+    @patch("slack_service.AsyncApp")
     @patch("main.SlackRequestHandler")
-    def test_lambda_handler(
-        self, mock_slack_handler, mock_app, mock_get_parameter, mock_env_vars
-    ):
+    def test_lambda_handler(self, mock_slack_handler, mock_app, mock_env_vars):
         """Test Lambda handler integration"""
-        # Mock get_parameter to return test credentials
-        mock_get_parameter.side_effect = ["xoxb-test-token", "test-signing-secret"]
 
         # Create a real mock app to avoid Slack API calls
         mock_app_instance = Mock()

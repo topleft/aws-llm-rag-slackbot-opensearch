@@ -8,11 +8,9 @@ from parameter_service import get_parameter
 from slack_bolt import App
 
 # Get environment variables with defaults for testing
-bot_token_parameter: str = os.environ.get(
-    "SLACK_BOT_TOKEN_PARAMETER", "/test/slack/bot-token"
-)
-signing_secret_parameter: str = os.environ.get(
-    "SLACK_SIGNING_SECRET_PARAMETER", "/test/slack/signing-secret"
+bot_token: str = os.environ.get("SLACK_BOT_TOKEN", "test-slack-bot-token")
+signing_secret: str = os.environ.get(
+    "SLACK_SIGNING_SECRET", "test-slack-signing-secret"
 )
 slack_slash_command: str = os.environ.get("SLACK_SLASH_COMMAND", "/test-llm")
 

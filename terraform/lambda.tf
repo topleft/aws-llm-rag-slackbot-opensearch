@@ -1,3 +1,13 @@
+data "aws_ssm_parameter" "slack_bot_token" {
+  name = var.slack_bot_token_parameter
+}
+
+data "aws_ssm_parameter" "slack_signing_secret" {
+  name = var.slack_signing_secret_parameter
+}
+
+
+
 module "lambda_function_llm_handler" {
   source        = "terraform-aws-modules/lambda/aws"
   version       = "8.1.2"
@@ -10,12 +20,12 @@ module "lambda_function_llm_handler" {
   timeout       = 15
   environment_variables = merge(
     {
-      ENV                            = var.env
-      SLACK_BOT_TOKEN_PARAMETER      = var.slack_bot_token_parameter
-      SLACK_SIGNING_SECRET_PARAMETER = var.slack_signing_secret_parameter
-      SLACK_SLASH_COMMAND            = var.slack_slash_command
-      KNOWLEDGEBASE_ID               = aws_bedrockagent_knowledge_base.resource_kb.id
-      INFERENCE_PROFILE_ID           = var.inference_profile_id
+      ENV                  = var.env
+      SLACK_BOT_TOKEN      = data.aws_ssm_parameter.slack_bot_token.value
+      SLACK_SIGNING_SECRET = data.aws_ssm_parameter.slack_signing_secret.value
+      SLACK_SLASH_COMMAND  = var.slack_slash_command
+      KNOWLEDGEBASE_ID     = aws_bedrockagent_knowledge_base.resource_kb.id
+      INFERENCE_PROFILE_ID = var.inference_profile_id
     },
 
   )
@@ -25,6 +35,8 @@ module "lambda_function_llm_handler" {
       source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
     }
   }
+
+
 }
 
 # IAM role policy for SSM parameter access

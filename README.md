@@ -244,6 +244,19 @@ provider "opensearch" {
 }
 ```
 
+### Terraforn Destroy
+
+Before running `make destroy_dev`, ensure all files are removed from the knowledge base data source S3 bucket. Terraform cannot destroy buckets that contain objects, which will cause the destroy operation to fail.
+
+```bash
+# Remove all objects from the knowledge base bucket
+aws s3 rm s3://<kb_data_source_s3_bucket_name>/ --recursive
+
+# Proceed with infrastructure destruction
+make destroy_dev
+```
+
+
 ## 🔐 Security
 
 - All sensitive data stored in AWS SSM Parameter Store

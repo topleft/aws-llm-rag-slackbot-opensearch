@@ -9,7 +9,7 @@ output "account_id" {
 locals {
   account_id             = data.aws_caller_identity.this.account_id
   region                 = data.aws_region.this.region
-  bedrock_model_arn      = "arn:aws:bedrock:${local.region}::foundation-model/${coalesce(var.kb_model_id, "amazon.titan-embed-text-v2:0")}"
+  bedrock_model_arn      = "arn:aws:bedrock:${local.region}::foundation-model/${var.kb_model_id}"
   bedrock_kb_name        = "${var.kb_name}-${var.env}"
   image_tag              = formatdate("YYYYMMDDhhmmss", timestamp())
   kb_oss_collection_name = "${var.kb_oss_collection_name}-${var.env}"

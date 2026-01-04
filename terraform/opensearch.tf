@@ -83,8 +83,9 @@ resource "aws_opensearchserverless_security_policy" "resource_kb_network" {
 
 # OpenSearch resource 
 resource "aws_opensearchserverless_collection" "resource_kb" {
-  name = local.kb_oss_collection_name
-  type = "VECTORSEARCH"
+  name             = local.kb_oss_collection_name
+  type             = "VECTORSEARCH"
+  standby_replicas = var.enable_opensearch_standby_replicas ? "ENABLED" : "DISABLED"
   depends_on = [
     aws_opensearchserverless_access_policy.resource_kb,
     aws_opensearchserverless_security_policy.resource_kb_encryption,

@@ -1,8 +1,3 @@
-locals {
-  rag_model_id         = "amazon.nova-2-lite-v1:0"
-  inference_profile_id = "global.amazon.nova-2-lite-v1:0"
-}
-
 module "lambda_function_llm_handler" {
   source        = "terraform-aws-modules/lambda/aws"
   version       = "8.1.2"
@@ -16,11 +11,11 @@ module "lambda_function_llm_handler" {
   environment_variables = merge(
     {
       ENV                            = var.env
-      SLACK_BOT_TOKEN_PARAMETER      = "/topleft/llm_slackbot/${var.env}/SLACK_BOT_TOKEN"
-      SLACK_SIGNING_SECRET_PARAMETER = "/topleft/llm_slackbot/${var.env}/SLACK_SIGNING_SECRET"
-      SLACK_SLASH_COMMAND            = "/ask-llm"
+      SLACK_BOT_TOKEN_PARAMETER      = var.slack_bot_token_parameter
+      SLACK_SIGNING_SECRET_PARAMETER = var.slack_signing_secret_parameter
+      SLACK_SLASH_COMMAND            = var.slack_slash_command
       KNOWLEDGEBASE_ID               = aws_bedrockagent_knowledge_base.resource_kb.id
-      INFERENCE_PROFILE_ID           = local.inference_profile_id
+      INFERENCE_PROFILE_ID           = var.inference_profile_id
     },
 
   )
@@ -92,8 +87,8 @@ resource "aws_iam_role_policy" "bedrock_kb_invoke" {
         Effect = "Allow"
         Resource = [
           aws_bedrockagent_knowledge_base.resource_kb.arn,
-          "arn:aws:bedrock:*:*:foundation-model/${local.rag_model_id}",
-          "arn:aws:bedrock:*:*:inference-profile/${local.inference_profile_id}",
+          "arn:aws:bedrock:*:*:foundation-model/${var.rag_model_id}",
+          "arn:aws:bedrock:*:*:inference-profile/${var.inference_profile_id}",
         ]
       }
     ]

@@ -36,25 +36,6 @@ def mock_env_vars():
 
 
 @pytest.fixture
-def mock_ssm_client():
-    """Mock SSM client with test parameters"""
-    with mock_aws():
-        ssm = boto3.client("ssm", region_name="us-east-1")
-
-        # Create test parameters
-        ssm.put_parameter(
-            Name="/test/slack/bot-token", Value="xoxb-test-token", Type="SecureString"
-        )
-        ssm.put_parameter(
-            Name="/test/slack/signing-secret",
-            Value="test-signing-secret",
-            Type="SecureString",
-        )
-
-        yield ssm
-
-
-@pytest.fixture
 def mock_bedrock_response():
     """Mock Bedrock knowledge base response"""
     return {

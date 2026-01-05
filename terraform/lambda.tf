@@ -18,6 +18,7 @@ module "lambda_function_llm_handler" {
   publish       = true
   create_role   = true
   timeout       = 15
+  memory_size   = 1024 # optimizing for faster cold starts
   environment_variables = merge(
     {
       ENV                  = var.env
